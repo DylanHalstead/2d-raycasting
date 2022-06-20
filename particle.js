@@ -1,23 +1,45 @@
 class Particle{
-    constructor() {
+    constructor(walls) {
         // Put particle in the middle of the canvas
         this.pos = createVector(width/2, height/2);
+        // Add rays around the particle
         this.rays = [];
-        for (let angle = 0; angle < 360; angle += 2) {
-            this.rays.push(new Ray(this.pos, radians(angle)));
+        this.updateRays();
+
+        this.offset = 0;
+    }
+
+    rotate(angle) {
+        this.offset += angle;
+        for (let i = 0; i < this.rays.length; i += 1) {
+            this.rays[i].setAngle(radians(i) + this.offset)
         }
     }
 
-    update(x, y) {
+    updatePos(x, y) {
         this.pos.set(x, y)
+        this.updateRays();
     }
 
+    updateRays() {
+        this.rays = [];
+        for(let wall of walls) {
+            // Find the angle from the particle to a boundary's endpoints
+            let angle = Math.atan2(wall.a.y-this.pos.y,wall.a.x-this.pos.x);
+            this.rays.push(new Ray(this.pos, angle));
+            
+            angle = Math.atan2(wall.b.y-this.pos.y,wall.b.x-this.pos.x);
+            this.rays.push(new Ray(this.pos, angle));
+        }
+    }
+
+    // Checks for what wall is closest and therefore stops emmiting at said wall
     look (walls) {
-        for (let ray of this.rays) {
+        for (let i = 0; i < this.rays.length; i++) {
             let closest = null;
             let record = Infinity;
             for (let wall of walls){
-                const pt = ray.cast(wall);
+                const pt = this.rays[i].cast(wall);
                 if (pt) {
                     // Calculate distance between wall and ray
                     const d = p5.Vector.dist(this.pos, pt);
@@ -29,7 +51,7 @@ class Particle{
                 }
             }
             if(closest) {
-                stroke(255, 100);
+                stroke(255, 50);
                 line(this.pos.x, this.pos.y, closest.x, closest.y);
             }
         }

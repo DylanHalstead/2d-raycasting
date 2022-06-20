@@ -1,5 +1,3 @@
-//2D Raycasting Made following https://www.youtube.com/watch?v=TOEi6T2mtHo
-
 let walls = [];
 let ray;
 let particle;
@@ -19,7 +17,8 @@ function setup() {
     walls.push(new Boundary(width, height, 0, height));
     walls.push(new Boundary(0, height, 0, 0));
 
-    particle = new Particle();
+    particle = new Particle(walls);
+    // particle.rotate(0)
 }
 
 function draw() {
@@ -27,17 +26,7 @@ function draw() {
     for (let wall of walls) {
         wall.show();
     }
-    particle.update(mouseX, mouseY);
+    particle.updatePos(mouseX, mouseY);
     particle.look(walls);
     particle.show();
-    // ray.show();
-    // ray.setDir(mouseX, mouseY);
-
-    // // Vector position that hits wall
-    // let pt = ray.cast(wall);
-    // // If pt is hitting wall, make ray
-    // if(pt) {
-    //     fill(255)
-    //     ellipse(pt.x, pt.y, 8, 8)
-    // }
 }
