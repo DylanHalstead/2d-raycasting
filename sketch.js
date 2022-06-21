@@ -18,7 +18,6 @@ function setup() {
     walls.push(new Boundary(0, height, 0, 0));
 
     particle = new Particle(walls);
-    // particle.rotate(0)
 }
 
 function draw() {

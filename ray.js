@@ -1,10 +1,13 @@
 class Ray {
     constructor(pos, angle) {
         this.pos = pos;
-        // Function creates vector pointing at angle input
+        // Store angle for sorting Ray array
+        this.angle = angle;
+        // Function creates vector based on angle 
         this.dir = p5.Vector.fromAngle(angle);
     }
 
+    // Show the ray on the canvas
     show() {
         stroke(255);
         push();
@@ -13,9 +16,7 @@ class Ray {
         pop();
     }
 
-    // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line_segment
-    // https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
-    // Being that our wall is a line segment and the ray is an infinite line, we will be looking for 0 < t < 1 (ray) and u > 0 (wall)
+    // Find where ray intersects with boundary, if at all
     cast(wall) {
         // Wall's endpoints
         const x1 = wall.a.x;
@@ -29,6 +30,8 @@ class Ray {
         const x4 = this.pos.x + this.dir.x;
         const y4 = this.pos.y + this.dir.y;
 
+        // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line_segment
+        // https://stackoverflow.com/questions/563198/how-do-you-detect-where-two-line-segments-intersect
         // Check for 0 in denominator
         const denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
         if (denom == 0) {

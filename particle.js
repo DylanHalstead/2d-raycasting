@@ -2,39 +2,17 @@ class Particle{
     constructor(walls) {
         // Put particle in the middle of the canvas
         this.pos = createVector(width/2, height/2);
-        // Add rays around the particle
         this.rays = [];
+        // Add rays around the particle
         this.updateRays();
-
+        // TODO, give particles FOV and rotation
         this.offset = 0;
     }
 
-    rotate(angle) {
-        this.offset += angle;
-        for (let i = 0; i < this.rays.length; i += 1) {
-            this.rays[i].setAngle(radians(i) + this.offset)
-        }
-    }
-
-    updatePos(x, y) {
-        this.pos.set(x, y)
-        this.updateRays();
-    }
-
-    updateRays() {
-        this.rays = [];
-        for(let wall of walls) {
-            // Find the angle from the particle to a boundary's endpoints
-            let angle = Math.atan2(wall.a.y-this.pos.y,wall.a.x-this.pos.x);
-            this.rays.push(new Ray(this.pos, angle));
-            
-            angle = Math.atan2(wall.b.y-this.pos.y,wall.b.x-this.pos.x);
-            this.rays.push(new Ray(this.pos, angle));
-        }
-    }
-
-    // Checks for what wall is closest and therefore stops emmiting at said wall
+    // Checks for what wall is closest to ray, finds the intersection, and therefore stops ray at said wall
     look (walls) {
+        let prev = []
+        let triangles = []
         for (let i = 0; i < this.rays.length; i++) {
             let closest = null;
             let record = Infinity;
@@ -50,11 +28,82 @@ class Particle{
                     }
                 }
             }
-            if(closest) {
+            if (closest) {
                 stroke(255, 50);
                 line(this.pos.x, this.pos.y, closest.x, closest.y);
+
+                // Make Triangles to show casted area
+                let x1 = this.pos.x;
+                let y1 = this.pos.y;
+                let x2 = closest.x;
+                let y2 = closest.y;
+                let x3 = prev[0];
+                let y3 = prev[1];
+                if (x3 != null && y3 != null)
+                {
+                    fill('red');
+                    triangle(x1, y1, x2, y2, x3, y3);
+                    triangles.push([[x1, y1], [x2, y2], [x3, y3]]);
+                }
+                prev = [closest.x, closest.y];
             }
         }
+        this.calculateCoverage(triangles);
+    }
+
+    updatePos(x, y) {
+        this.pos.set(x, y)
+        this.updateRays();
+    }
+
+    updateRays() {
+        this.rays = [];
+        for (let wall of walls) {
+            // Find the angle from the particle to a boundary's endpoints
+            let angle = Math.atan2(wall.a.y-this.pos.y,wall.a.x-this.pos.x);
+            this.rays.push(new Ray(this.pos, angle));
+            this.rays.push(new Ray(this.pos, angle+0.0001));
+            this.rays.push(new Ray(this.pos, angle-0.0001));
+            angle = Math.atan2(wall.b.y-this.pos.y,wall.b.x-this.pos.x);
+            this.rays.push(new Ray(this.pos, angle));
+            this.rays.push(new Ray(this.pos, angle+0.0001));
+            this.rays.push(new Ray(this.pos, angle-0.0001));
+            // Make sure all Rays are sorted by angle for area calculations
+            this.rays.sort(function(a, b){
+                return a.angle > b.angle;
+            })
+        }
+    }
+
+    // TODO, make work with new setup
+    // // Rotate the FOV by angle
+    // rotate(angle) {
+    //     this.offset += angle;
+    //     for (let i = 0; i < this.rays.length; i += 1) {
+    //         this.rays[i].setAngle(radians(i) + this.offset)
+    //     }
+    // }
+
+    calculateCoverage(triangles) {
+        let areas = []
+        for (let triangle of triangles) {
+            let a = dist(triangle[0][0], triangle[0][1], triangle[1][0], triangle[1][1]);
+            let b = dist(triangle[1][0], triangle[1][1], triangle[2][0], triangle[2][1]);
+            let c = dist(triangle[2][0], triangle[2][1], triangle[0][0], triangle[0][1]);
+            // Area formula
+            let s = (a + b + c) / 2;
+            let area = sqrt(s * (s - a) * (s - b) * (s - c));
+            areas.push(area);
+        }
+        let total = 0;
+        for (let area of areas) {
+            total += area;
+        }
+        // Calculate the percentage of the screen covered
+        const canvasArea = height * width;
+        let coveragePercent = total/canvasArea;
+        coveragePercent = (coveragePercent * 100).toFixed(2);
+        console.log(`${coveragePercent}%`);
     }
 
     show() {
