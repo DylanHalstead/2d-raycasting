@@ -11,8 +11,18 @@ class Particle{
 
     // Checks for what wall is closest to ray, finds the intersection, and therefore stops ray at said wall
     look (walls) {
-        let prev = []
-        let triangles = []
+        let isFirst = true;
+        let first = [];
+        let last = [];
+        let prev = [];
+        let triangles = [];
+
+        let x1;
+        let y1;
+        let x2;
+        let y2;
+        let x3;
+        let y3;
         for (let i = 0; i < this.rays.length; i++) {
             let closest = null;
             let record = Infinity;
@@ -33,21 +43,30 @@ class Particle{
                 line(this.pos.x, this.pos.y, closest.x, closest.y);
 
                 // Make Triangles to show casted area
-                let x1 = this.pos.x;
-                let y1 = this.pos.y;
-                let x2 = closest.x;
-                let y2 = closest.y;
-                let x3 = prev[0];
-                let y3 = prev[1];
+                x1 = this.pos.x;
+                y1 = this.pos.y;
+                x2 = closest.x;
+                y2 = closest.y;
+                x3 = prev[0];
+                y3 = prev[1];
                 if (x3 != null && y3 != null)
                 {
                     fill('red');
                     triangle(x1, y1, x2, y2, x3, y3);
                     triangles.push([[x1, y1], [x2, y2], [x3, y3]]);
                 }
+                if(isFirst){
+                    first = [x2, y2];
+                    isFirst = false;
+                }
+                last = [x2, y2];
                 prev = [closest.x, closest.y];
             }
         }
+        fill('red');
+        triangle(x1, y1, first[0], first[1], last[0], last[1]);
+        triangles.push([[x1, y1], [first[0], first[1]], [last[0], last[1]]]);
+
         this.calculateCoverage(triangles);
     }
 
@@ -58,9 +77,9 @@ class Particle{
 
     updateRays() {
         this.rays = [];
-        for (let angle = 0; angle < 360; angle += 2) {
-            this.rays.push(new Ray(this.pos, radians(angle)));
-        }
+        // for (let angle = 0; angle < 360; angle += 2) {
+        //     this.rays.push(new Ray(this.pos, radians(angle)));
+        // }
         for (let wall of walls) {
             // Find the angle from the particle to a boundary's endpoints
             let angle = Math.atan2(wall.a.y-this.pos.y,wall.a.x-this.pos.x);
@@ -77,34 +96,34 @@ class Particle{
             this.rays.sort(function(a, b){
                 return a.angle > b.angle;
             })
-            this.checkOrder();
+            // this.checkOrder();
         }
     }
 
-    // Function used to make sure sorting is being done correctly
-    checkOrder(){
-        let wrongOrder = false;
-        for(let x = 0; x < this.rays.length; x++){
-            while(this.getOccurrence(this.rays, x) > 1)
-            {
-                for(let y = 0; y < this.rays.length; y++){
-                    if(this.rays[y] == this.rays[x]){
-                        this.rays.splice(y, 1);
-                    }
-                    if(this.rays[y] == this.rays[x]){
-                        wrongOrder = true;
-                    }
-                }
-            }
-        }
-        console.log(wrongOrder);
-    }
+    // // Function used to make sure sorting is being done correctly
+    // checkOrder(){
+    //     let wrongOrder = false;
+    //     for(let x = 0; x < this.rays.length; x++){
+    //         while(this.getOccurrence(this.rays, x) > 1)
+    //         {
+    //             for(let y = 0; y < this.rays.length; y++){
+    //                 if(this.rays[y].angle == this.rays[x].angle){
+    //                     this.rays.splice(y, 1);
+    //                 }
+    //                 if(this.rays[y].angle == this.rays[x].angle){
+    //                     wrongOrder = true;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     console.log(wrongOrder);
+    // }
 
-    getOccurrence(array, value) {
-        var count = 0;
-        array.forEach((v) => (v === value && count++));
-        return count;
-    }
+    // getOccurrence(array, value) {
+    //     var count = 0;
+    //     array.forEach((v) => (v === value && count++));
+    //     return count;
+    // }
 
     // TODO, make work with new setup
     // // Rotate the FOV by angle
