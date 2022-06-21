@@ -1,7 +1,7 @@
 class Particle{
-    constructor(walls) {
+    constructor(x, y, walls) {
         // Put particle in the middle of the canvas
-        this.pos = createVector(width/2, height/2);
+        this.pos = createVector(x, y);
         this.rays = [];
         // Add rays around the particle
         this.updateRays();
@@ -58,9 +58,14 @@ class Particle{
 
     updateRays() {
         this.rays = [];
+        for (let angle = 0; angle < 360; angle += 2) {
+            this.rays.push(new Ray(this.pos, radians(angle)));
+        }
         for (let wall of walls) {
             // Find the angle from the particle to a boundary's endpoints
             let angle = Math.atan2(wall.a.y-this.pos.y,wall.a.x-this.pos.x);
+            let duplicate = false;
+            if(duplicate) continue;
             this.rays.push(new Ray(this.pos, angle));
             this.rays.push(new Ray(this.pos, angle+0.0001));
             this.rays.push(new Ray(this.pos, angle-0.0001));
@@ -72,7 +77,33 @@ class Particle{
             this.rays.sort(function(a, b){
                 return a.angle > b.angle;
             })
+            this.checkOrder();
         }
+    }
+
+    // Function used to make sure sorting is being done correctly
+    checkOrder(){
+        let wrongOrder = false;
+        for(let x = 0; x < this.rays.length; x++){
+            while(this.getOccurrence(this.rays, x) > 1)
+            {
+                for(let y = 0; y < this.rays.length; y++){
+                    if(this.rays[y] == this.rays[x]){
+                        this.rays.splice(y, 1);
+                    }
+                    if(this.rays[y] == this.rays[x]){
+                        wrongOrder = true;
+                    }
+                }
+            }
+        }
+        console.log(wrongOrder);
+    }
+
+    getOccurrence(array, value) {
+        var count = 0;
+        array.forEach((v) => (v === value && count++));
+        return count;
     }
 
     // TODO, make work with new setup
