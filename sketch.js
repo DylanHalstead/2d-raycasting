@@ -12,10 +12,25 @@ function setup() {
     walls.push(new Boundary(0, height, 0, 0));
 
     // Building demo
-    walls.push(new Boundary(100, 100, 300, 100));
-    walls.push(new Boundary(100, 100, 100, 300));
-    walls.push(new Boundary(100, 300, 300, 300));
-    walls.push(new Boundary(300, 300, 300, 100));
+    walls.push(new Boundary(50, 50, 150, 50));
+    walls.push(new Boundary(50, 50, 50, 150));
+    walls.push(new Boundary(50, 150, 150, 150));
+    walls.push(new Boundary(150, 150, 150, 50));
+
+    walls.push(new Boundary(150, 300, 300, 300));
+    walls.push(new Boundary(150, 300, 150, 350));
+    walls.push(new Boundary(150, 350, 300, 350));
+    walls.push(new Boundary(300, 350, 300, 300));
+
+    walls.push(new Boundary(200, 200, 250, 200));
+    walls.push(new Boundary(200, 200, 200, 250));
+    walls.push(new Boundary(200, 250, 250, 250));
+    walls.push(new Boundary(250, 250, 250, 200));
+
+    walls.push(new Boundary(150, 300, 300, 300));
+    walls.push(new Boundary(150, 300, 150, 350));
+    walls.push(new Boundary(150, 350, 300, 350));
+    walls.push(new Boundary(300, 350, 300, 300));
 
     particle = new Particle(width/2, height/2, walls);
 }
