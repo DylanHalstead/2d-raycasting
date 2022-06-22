@@ -1,12 +1,14 @@
 class Particle{
-    constructor(x, y, walls) {
+    constructor(x, y, walls, rgba) {
         // Put particle in the middle of the canvas
         this.pos = createVector(x, y);
         this.rays = [];
         // Add rays around the particle
         this.updateRays();
         // TODO, give particles FOV and rotation
+        this.fov = 360;
         this.offset = 0;
+        this.rgba = rgba;
     }
 
     // Checks for what wall is closest to ray, finds the intersection, and therefore stops ray at said wall
@@ -15,14 +17,14 @@ class Particle{
         let first = [];
         let last = [];
         let prev = [];
-        let triangles = [];
-
+        let triangles = []
         let x1;
         let y1;
         let x2;
         let y2;
         let x3;
         let y3;
+
         for (let i = 0; i < this.rays.length; i++) {
             let closest = null;
             let record = Infinity;
@@ -39,8 +41,8 @@ class Particle{
                 }
             }
             if (closest) {
-                stroke(255, 50);
-                line(this.pos.x, this.pos.y, closest.x, closest.y);
+                // stroke(243, 91, 4, 1);
+                // line(this.pos.x, this.pos.y, closest.x, closest.y);
 
                 // Make Triangles to show casted area
                 x1 = this.pos.x;
@@ -51,7 +53,9 @@ class Particle{
                 y3 = prev[1];
                 if (x3 != null && y3 != null)
                 {
-                    fill('red');
+                    stroke(255, 255, 255, 25);
+                    strokeWeight(1);
+                    fill(this.rgba[0], this.rgba[1], this.rgba[2], this.rgba[3]);
                     triangle(x1, y1, x2, y2, x3, y3);
                     triangles.push([[x1, y1], [x2, y2], [x3, y3]]);
                 }
@@ -63,11 +67,11 @@ class Particle{
                 prev = [closest.x, closest.y];
             }
         }
-        fill('red');
+        // Make sure first and last triangles also connect
         triangle(x1, y1, first[0], first[1], last[0], last[1]);
         triangles.push([[x1, y1], [first[0], first[1]], [last[0], last[1]]]);
 
-        this.calculateCoverage(triangles);
+        this.triangles = triangles;
     }
 
     updatePos(x, y) {
@@ -77,9 +81,6 @@ class Particle{
 
     updateRays() {
         this.rays = [];
-        // for (let angle = 0; angle < 360; angle += 2) {
-        //     this.rays.push(new Ray(this.pos, radians(angle)));
-        // }
         for (let wall of walls) {
             // Find the angle from the particle to a boundary's endpoints
             let angle = Math.atan2(wall.a.y-this.pos.y,wall.a.x-this.pos.x);
@@ -96,47 +97,13 @@ class Particle{
             this.rays.sort(function(a, b){
                 return a.angle > b.angle;
             })
-            // this.checkOrder();
         }
     }
-
-    // // Function used to make sure sorting is being done correctly
-    // checkOrder(){
-    //     let wrongOrder = false;
-    //     for(let x = 0; x < this.rays.length; x++){
-    //         while(this.getOccurrence(this.rays, x) > 1)
-    //         {
-    //             for(let y = 0; y < this.rays.length; y++){
-    //                 if(this.rays[y].angle == this.rays[x].angle){
-    //                     this.rays.splice(y, 1);
-    //                 }
-    //                 if(this.rays[y].angle == this.rays[x].angle){
-    //                     wrongOrder = true;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     console.log(wrongOrder);
-    // }
-
-    // getOccurrence(array, value) {
-    //     var count = 0;
-    //     array.forEach((v) => (v === value && count++));
-    //     return count;
-    // }
-
-    // TODO, make work with new setup
-    // // Rotate the FOV by angle
-    // rotate(angle) {
-    //     this.offset += angle;
-    //     for (let i = 0; i < this.rays.length; i += 1) {
-    //         this.rays[i].setAngle(radians(i) + this.offset)
-    //     }
-    // }
 
     calculateCoverage(triangles) {
         let areas = []
         for (let triangle of triangles) {
+            // Grab triangle sides' length
             let a = dist(triangle[0][0], triangle[0][1], triangle[1][0], triangle[1][1]);
             let b = dist(triangle[1][0], triangle[1][1], triangle[2][0], triangle[2][1]);
             let c = dist(triangle[2][0], triangle[2][1], triangle[0][0], triangle[0][1]);
@@ -145,22 +112,27 @@ class Particle{
             let area = sqrt(s * (s - a) * (s - b) * (s - c));
             areas.push(area);
         }
+
+        // Get total area of all triagnle
         let total = 0;
         for (let area of areas) {
             total += area;
         }
+
         // Calculate the percentage of the screen covered
         const canvasArea = height * width;
         let coveragePercent = total/canvasArea;
         coveragePercent = (coveragePercent * 100).toFixed(2);
-        console.log(`${coveragePercent}%`);
+        return coveragePercent;
     }
 
     show() {
-        fill(255);
-        ellipse(this.pos.x, this.pos.y, 4);
-        for (let ray of this.rays) {
-            ray.show()
-        }
+        fill(this.rgba[0], this.rgba[1], this.rgba[2]);
+        ellipse(this.pos.x, this.pos.y, 8);
+        // for (let ray of this.rays) {
+        //     ray.show()
+        // }
     }
 }
+
+// Animation functions

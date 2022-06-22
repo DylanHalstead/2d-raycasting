@@ -1,10 +1,14 @@
 let walls = [];
 let ray;
-let particle;
+let particle1;
+let particle2;
+let particle3;
+let particle4;
+let particle5;
+let numClick = 0;
 
 function setup() {
     createCanvas(400, 400);
-    
     // Walls around perimeter
     walls.push(new Boundary(0, 0, width, 0));
     walls.push(new Boundary(width, 0, width, height));
@@ -32,7 +36,12 @@ function setup() {
     walls.push(new Boundary(150, 350, 300, 350));
     walls.push(new Boundary(300, 350, 300, 300));
 
-    particle = new Particle(width/2, height/2, walls);
+    particle1 = new Particle(width/2, height/2, walls, [243, 91, 4, 127]);
+    particle2 = new Particle(width/2, height/2, walls, [92, 173, 72, 127]);
+    particle3 = new Particle(width/2, height/2, walls, [183, 68, 184, 127]);
+    particle4 = new Particle(width/2, height/2, walls, [4, 139, 168, 127]);
+    particle5 = new Particle(width/2, height/2, walls, [210, 181, 55, 127]);
+    activeParticles = [particle1];
 }
 
 function draw() {
@@ -40,12 +49,78 @@ function draw() {
     for (let wall of walls) {
         wall.show();
     }
-    if(mouseX < width && mouseY < height && mouseX > 0 && mouseY > 0){
-        particle.updatePos(mouseX, mouseY);
+
+    if(numClick < 5){
+        if(mouseX < width && mouseY < height && mouseX > 0 && mouseY > 0){
+            activeParticles[activeParticles.length-1].updatePos(mouseX, mouseY);
+        }
+        else {
+            activeParticles[activeParticles.length-1].updatePos(width/2, height/2, walls);
+        }
     }
-    else {
-        particle.updatePos(width/2, height/2);
+
+    let coverage;
+    for(let activeParticle of activeParticles){
+        activeParticle.look(walls);
+        activeParticle.show();
+        coverage += activeParticle.calculateCoverage(activeParticle.triangles);
     }
-    particle.look(walls);
-    particle.show();
+    document.querySelector('#percent').textContent = `${coverage}% Covered`;
+}
+function mouseClicked(){
+    switch(numClick) {
+        case 0:
+            activeParticles.push(particle2);
+            numClick++;
+            break;
+        case 1:
+            activeParticles.push(particle3);
+            numClick++;
+            break;
+        case 2:
+            activeParticles.push(particle4);
+            numClick++;
+            break;
+        case 3:
+            activeParticles.push(particle5);
+            numClick++;
+            break;
+        default:
+            numClick++;
+            break;
+    }
+    // Stop any default behavior
+    return false;
+}
+
+function easeInOutSine(i) {
+    i /= width;
+    return -1 * (Math.cos(PI * i) - 1) / 2;
+}
+
+function animate() {
+    console.log('Started!')
+    let x = particle1.pos.x;
+    let y = particle1.pos.y;
+    let endX = 350;
+    let endY = 200;
+    while(x != endX || y != endY){
+        setTimeout(() => {
+            particle1.updatePos(x, y);
+            console.log('Running!')
+            if (x < endX){
+                x++;
+            }
+            else if(x > endX) {
+                x--;
+            }
+
+            if (y < endY){
+                y++;
+            }
+            else if(y > endY) {
+                y--;
+            }
+        }, 1000);
+    }
 }
