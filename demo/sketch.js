@@ -50,6 +50,8 @@ function draw() {
         wall.show();
     }
 
+    particle1.setFOV(190, 180);
+
     if(numClick < 5){
         if(mouseX < width && mouseY < height && mouseX > 0 && mouseY > 0){
             activeParticles[activeParticles.length-1].updatePos(mouseX, mouseY);

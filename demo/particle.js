@@ -6,10 +6,35 @@ class Particle{
         // Add rays around the particle
         this.updateRays();
         // TODO, give particles FOV and rotation
-        this.fov = 360;
-        this.offset = 0;
+        this.fov = radians(360);
+        this.offset = radians(0);
         this.rgba = rgba;
         this.triangles = [];
+    }
+
+    setFOV(fov, offset) {
+        this.fov = radians(fov);
+        this.offset = radians(offset);
+    }
+
+    limitView(){
+        let left = -1 * this.fov/2 + this.offset/2;
+        let right = this.fov/2 + this.offset/2;
+
+        let newRays = [];
+        for(let ray of this.rays){
+            if(ray.angle < right && ray.angle > left) {
+                newRays.push(ray);
+            }
+        }
+        if(this.fov != radians(360)){
+            newRays.push(new Ray(this.pos, left));
+            newRays.push(new Ray(this.pos, right));
+        }
+        this.rays = newRays;
+        this.rays.sort(function(a, b){
+            return a.angle > b.angle;
+        })
     }
 
     // Checks for what wall is closest to ray, finds the intersection, and therefore stops ray at said wall
@@ -26,6 +51,8 @@ class Particle{
         let x3;
         let y3;
 
+        // Limit view based on fov amount
+        this.limitView();
         for (let i = 0; i < this.rays.length; i++) {
             let closest = null;
             let record = Infinity;
@@ -42,7 +69,6 @@ class Particle{
                 }
             }
             if (closest) {
-                // stroke(243, 91, 4, 1);
                 // line(this.pos.x, this.pos.y, closest.x, closest.y);
 
                 // Make Triangles to show casted area
@@ -68,9 +94,11 @@ class Particle{
                 prev = [closest.x, closest.y];
             }
         }
-        // Make sure first and last triangles also connect
-        triangle(x1, y1, first[0], first[1], last[0], last[1]);
-        triangles.push([[x1, y1], [first[0], first[1]], [last[0], last[1]]]);
+        // Make sure first and last triangles also connect is 360
+        if(this.fov == radians(360)){
+            triangle(x1, y1, first[0], first[1], last[0], last[1]);
+            triangles.push([[x1, y1], [first[0], first[1]], [last[0], last[1]]]);
+        }
 
         this.triangles = triangles;
     }
@@ -85,8 +113,6 @@ class Particle{
         for (let wall of walls) {
             // Find the angle from the particle to a boundary's endpoints
             let angle = Math.atan2(wall.a.y-this.pos.y,wall.a.x-this.pos.x);
-            let duplicate = false;
-            if(duplicate) continue;
             this.rays.push(new Ray(this.pos, angle));
             this.rays.push(new Ray(this.pos, angle+0.0001));
             this.rays.push(new Ray(this.pos, angle-0.0001));
