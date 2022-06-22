@@ -9,6 +9,7 @@ class Particle{
         this.fov = 360;
         this.offset = 0;
         this.rgba = rgba;
+        this.triangles = [];
     }
 
     // Checks for what wall is closest to ray, finds the intersection, and therefore stops ray at said wall
@@ -122,7 +123,7 @@ class Particle{
         // Calculate the percentage of the screen covered
         const canvasArea = height * width;
         let coveragePercent = total/canvasArea;
-        coveragePercent = (coveragePercent * 100).toFixed(2);
+        coveragePercent = Number((coveragePercent * 100).toFixed(2));
         return coveragePercent;
     }
 
