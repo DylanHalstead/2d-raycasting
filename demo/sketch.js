@@ -26,21 +26,24 @@ function setup() {
     walls.push(new Boundary(150, 350, 300, 350));
     walls.push(new Boundary(300, 350, 300, 300));
 
-    walls.push(new Boundary(200, 200, 250, 200));
-    walls.push(new Boundary(200, 200, 200, 250));
-    walls.push(new Boundary(200, 250, 250, 250));
-    walls.push(new Boundary(250, 250, 250, 200));
+    walls.push(new Boundary(201, 201, 250, 201));
+    walls.push(new Boundary(201, 201, 201, 250));
+    walls.push(new Boundary(201, 250, 250, 250));
+    walls.push(new Boundary(250, 250, 250, 201));
 
     walls.push(new Boundary(150, 300, 300, 300));
     walls.push(new Boundary(150, 300, 150, 350));
     walls.push(new Boundary(150, 350, 300, 350));
     walls.push(new Boundary(300, 350, 300, 300));
 
-    particle1 = new Particle(width/2, height/2, walls, [243, 91, 4, 127]);
-    particle2 = new Particle(width/2, height/2, walls, [92, 173, 72, 127]);
-    particle3 = new Particle(width/2, height/2, walls, [183, 68, 184, 127]);
-    particle4 = new Particle(width/2, height/2, walls, [4, 139, 168, 127]);
-    particle5 = new Particle(width/2, height/2, walls, [210, 181, 55, 127]);
+    particle1 = new Particle(width/2, height/2, walls, [243, 91, 4, 51]);
+    // for(let ray of particle1.rays){
+    //     console.log(ray.angle);
+    // }
+    particle2 = new Particle(width/2, height/2, walls, [92, 173, 72, 51]);
+    particle3 = new Particle(width/2, height/2, walls, [183, 68, 184, 51]);
+    particle4 = new Particle(width/2, height/2, walls, [4, 139, 168, 51]);
+    particle5 = new Particle(width/2, height/2, walls, [210, 181, 55, 51]);
     activeParticles = [particle1];
 }
 
@@ -50,7 +53,7 @@ function draw() {
         wall.show();
     }
 
-    particle1.setFOV(190, 180);
+    // particle1.setFOV(190, 180);
 
     if(numClick < 5){
         if(mouseX < width && mouseY < height && mouseX > 0 && mouseY > 0){
@@ -61,33 +64,24 @@ function draw() {
         }
     }
 
-    let coverage = 0;
-    for(let activeParticle of activeParticles){
-        activeParticle.look(walls);
-        activeParticle.show();
-        coverage += activeParticle.calculateCoverage(activeParticle.triangles);
+    let clipping = []
+    // Detect polygon clippage
+    if(activeParticles.length > 1){
+        for (let i = 0; i < activeParticles.length - 1; i++) {
+            // clipping.push(clip(activeParticle[i].polygon, clip(activeParticle[i+1].polygon)) 
+        }
     }
 
-    // if(activeParticles.length > 1){
-    //     for(let i = 0; i < activeParticles.length-1; i++){
-    //         let clippedPolygons = []
-    //         p1 = activeParticles[i];
-    //         p2 = activeParticles[i+1];
-    //         for(let x = 0; i < p1.triangles.length; x++){
-    //             for(let y = 0; i < p2.triangles.length; y++){
-    //                 clippedPolygons.push(clip(p1.triangles[x], p2.triangles[x]));
-    //             }
-    //         }
-    //     }
-    //     beginShape();
-    //     for(let polygon in clippedPolygons){
-    //         vertex(polygon[0], polygon[1]);
-    //     }
-    //     endShape(CLOSE);
-    // }
+    let coverage = 0;
+    for(let activeParticle of activeParticles){
+        activeParticle.look();
+        activeParticle.show();
+        // coverage += activeParticle.calculateCoverage(activeParticle.triangles);
+    }
 
     document.querySelector('#percent').textContent = `${coverage.toFixed(2)}% Covered`;
 }
+
 function mouseClicked(){
     switch(numClick) {
         case 0:
@@ -112,38 +106,6 @@ function mouseClicked(){
     }
     // Stop any default behavior
     return false;
-}
-
-function easeInOutSine(i) {
-    i /= width;
-    return -1 * (Math.cos(PI * i) - 1) / 2;
-}
-
-function animate() {
-    console.log('Started!')
-    let x = particle1.pos.x;
-    let y = particle1.pos.y;
-    let endX = 350;
-    let endY = 200;
-    while(x != endX || y != endY){
-        setTimeout(() => {
-            particle1.updatePos(x, y);
-            console.log('Running!')
-            if (x < endX){
-                x++;
-            }
-            else if(x > endX) {
-                x--;
-            }
-
-            if (y < endY){
-                y++;
-            }
-            else if(y > endY) {
-                y--;
-            }
-        }, 1000);
-    }
 }
 
 // Used to find where polygons are clipping eachother, takes in an array of vertices, returns an array of vertices
@@ -184,4 +146,10 @@ function clip(subjectPolygon, clipPolygon) {
         cp1 = cp2;
     }
     return outputList;
+}
+
+function calculcateCoverage(particles) {
+    for(let particle of particles){
+        
+    }
 }
