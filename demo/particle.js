@@ -104,14 +104,3 @@ class Particle{
         ellipse(this.pos.x, this.pos.y, 8);
     }
 }
-
-// Function takes in an array a vertices and returns the shapes area
-function calculcateArea(polygon){
-    let total = 0;
-    for(let i = 0; i < polygon.length - 1; i++){
-        let vertices1 = polygon[i];
-        let vertices2 = polygon[i+1];
-        total += vertices1[0] * vertices2[1] - vertices2[0] * vertices1[1];
-    }
-    return total/2;
-}

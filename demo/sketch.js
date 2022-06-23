@@ -64,22 +64,10 @@ function draw() {
         }
     }
 
-    let clipping = []
-    // Detect polygon clippage
-    if(activeParticles.length > 1){
-        for (let i = 0; i < activeParticles.length - 1; i++) {
-            // clipping.push(clip(activeParticle[i].polygon, clip(activeParticle[i+1].polygon)) 
-        }
-    }
-
-    let coverage = 0;
     for(let activeParticle of activeParticles){
         activeParticle.look();
         activeParticle.show();
-        // coverage += activeParticle.calculateCoverage(activeParticle.triangles);
     }
-
-    document.querySelector('#percent').textContent = `${coverage.toFixed(2)}% Covered`;
 }
 
 function mouseClicked(){
@@ -106,50 +94,4 @@ function mouseClicked(){
     }
     // Stop any default behavior
     return false;
-}
-
-// Used to find where polygons are clipping eachother, takes in an array of vertices, returns an array of vertices
-function clip(subjectPolygon, clipPolygon) {
-    var cp1, cp2, s, e;
-    var inside = function(p) {
-        return (
-            (cp2[0] - cp1[0]) * (p[1] - cp1[1]) > (cp2[1] - cp1[1]) * (p[0] - cp1[0])
-        );
-    };
-    var intersection = function() {
-        var dc = [cp1[0] - cp2[0], cp1[1] - cp2[1]],
-        dp = [s[0] - e[0], s[1] - e[1]],
-        n1 = cp1[0] * cp2[1] - cp1[1] * cp2[0],
-        n2 = s[0] * e[1] - s[1] * e[0],
-        n3 = 1.0 / (dc[0] * dp[1] - dc[1] * dp[0]);
-        return [(n1 * dp[0] - n2 * dc[0]) * n3, (n1 * dp[1] - n2 * dc[1]) * n3];
-    };
-    var outputList = subjectPolygon;
-    cp1 = clipPolygon[clipPolygon.length - 1];
-    for (j in clipPolygon) {
-        var cp2 = clipPolygon[j];
-        var inputList = outputList;
-        outputList = [];
-        s = inputList[inputList.length - 1]; //last on the input list
-        for (i in inputList) {
-            var e = inputList[i];
-            if (inside(e)) {
-                if (!inside(s)) {
-                    outputList.push(intersection());
-                }
-                outputList.push(e);
-            } else if (inside(s)) {
-                outputList.push(intersection());
-            }
-            s = e;
-        }
-        cp1 = cp2;
-    }
-    return outputList;
-}
-
-function calculcateCoverage(particles) {
-    for(let particle of particles){
-        
-    }
 }
