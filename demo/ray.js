@@ -1,5 +1,6 @@
 class Ray {
-    constructor(pos, angle) {
+    constructor(sketch, pos, angle) {
+        this.sketch = sketch;
         this.pos = pos;
         // Store angle for sorting Ray array
         this.angle = angle;
@@ -40,7 +41,7 @@ class Ray {
         const t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / denom;
         const u = ((x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2)) / denom;
         if (t > 0 && t < 1 && u > 0){
-            const pt = createVector();
+            const pt = this.sketch.createVector();
             pt.x = x1 + t * (x2 - x1);
             pt.y = y1 + t * (y2 - y1);
             return pt;

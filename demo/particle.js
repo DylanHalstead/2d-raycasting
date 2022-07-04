@@ -1,39 +1,42 @@
 class Particle{
-    constructor(x, y, walls, rgba) {
+    constructor(sketch, x, y, walls, rgba) {
         // Put particle in the middle of the canvas
-        this.pos = createVector(x, y);
+        this.sketch = sketch;
+        this.pos = this.sketch.createVector(x, y);
         this.rays = [];
         this.walls = walls;
-        this.fov = radians(360);
-        this.offset = radians(0);
+        this.fov = this.sketch.radians(360);
+        this.offset = this.sketch.radians(0);
         this.rgba = rgba;
         this.vertices = []
     }
 
     // Adjust fov and orientation, used in parallel with limitView
     setFOV(fov, offset) {
-        this.fov = radians(fov);
-        this.offset = radians(offset);
+        this.fov = sketch.radians(fov);
+        this.offset = sketch.radians(offset);
     }
 
     limitView(){
-        let left = -1 * this.fov/2 + this.offset/2;
-        let right = this.fov/2 + this.offset/2;
+        // let left = -1 * this.fov/2;
+        // let right = this.fov/2;
 
-        let newRays = [];
-        for(let ray of this.rays){
-            if(ray.angle < right && ray.angle > left) {
-                newRays.push(ray);
-            }
-        }
-        if(this.fov != radians(360)){
-            newRays.push(new Ray(this.pos, left));
-            newRays.push(new Ray(this.pos, right));
-        }
-        this.rays = newRays;
-        this.rays.sort(function(a, b){
-            return a.angle > b.angle;
-        })
+        // let newRays = [];
+        // let newRay;
+        // for(let ray of this.rays){
+        //     if(ray.angle < right && ray.angle > left) {
+        //         newRay = new Ray(this.pos, ray.angle + this.offset)
+        //         newRays.push(newRay);
+        //     }
+        // }
+        // if(this.fov != radians(360)){
+        //     newRays.push(new Ray(this.pos, left + this.offset));
+        //     newRays.push(new Ray(this.pos, right + this.offset));
+        // }
+        // this.rays = newRays;
+        // this.rays.sort(function(a, b){
+        //     return a.angle > b.angle;
+        // })
     }
 
     // Checks for what wall is closest to ray, finds the intersection, and therefore stops ray at said wall
@@ -70,14 +73,14 @@ class Particle{
     }
 
     drawPolygon() {
-        beginShape();
-        stroke(255, 255, 255, 25);
-        fill(this.rgba[0], this.rgba[1], this.rgba[2], this.rgba[3]);
+        this.sketch.beginShape();
+        this.sketch.stroke(255, 255, 255, 25);
+        this.sketch.fill(this.rgba[0], this.rgba[1], this.rgba[2], this.rgba[3]);
         for(let v of this.vertices){
-            vertex(v[0], v[1])
+            this.sketch.vertex(v[0], v[1])
         }
-        vertex(this.vertices[0][0], this.vertices[0][1]);
-        endShape(CLOSE)
+        this.sketch.vertex(this.vertices[0][0], this.vertices[0][1]);
+        this.sketch.endShape(this.sketch.CLOSE)
     }
 
     updateRays() {
@@ -85,13 +88,13 @@ class Particle{
         for (let wall of this.walls) {
             // Find the angle from the particle to a boundary's endpoints
             let angle = Math.atan2(wall.a.y-this.pos.y,wall.a.x-this.pos.x);
-            this.rays.push(new Ray(this.pos, angle));
-            this.rays.push(new Ray(this.pos, angle+0.0001));
-            this.rays.push(new Ray(this.pos, angle-0.0001));
+            this.rays.push(new Ray(this.sketch, this.pos, angle));
+            this.rays.push(new Ray(this.sketch, this.pos, angle+0.0001));
+            this.rays.push(new Ray(this.sketch, this.pos, angle-0.0001));
             angle = Math.atan2(wall.b.y-this.pos.y,wall.b.x-this.pos.x);
-            this.rays.push(new Ray(this.pos, angle));
-            this.rays.push(new Ray(this.pos, angle+0.0001));
-            this.rays.push(new Ray(this.pos, angle-0.0001));
+            this.rays.push(new Ray(this.sketch, this.pos, angle));
+            this.rays.push(new Ray(this.sketch, this.pos, angle+0.0001));
+            this.rays.push(new Ray(this.sketch, this.pos, angle-0.0001));
             // Make sure all Rays are sorted by angle
             this.rays.sort(function(a, b){
                 return a.angle > b.angle;
@@ -100,7 +103,8 @@ class Particle{
     }
 
     show() {
-        fill(this.rgba[0], this.rgba[1], this.rgba[2]);
-        ellipse(this.pos.x, this.pos.y, 8);
+        this.sketch.stroke(this.rgba[0], this.rgba[1], this.rgba[2]);
+        this.sketch.fill(this.rgba[0], this.rgba[1], this.rgba[2]);
+        this.sketch.ellipse(this.pos.x, this.pos.y, 8);
     }
 }
